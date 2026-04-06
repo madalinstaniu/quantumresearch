@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post-Quantum Cryptography — The Global Race</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06090f;
+  --surface: #0d1320;
+  --surface2: #131c2e;
+  --surface3: #1a2540;
+  --accent: #00ffc6;
+  --accent2: #38bdf8;
+  --accent3: #a78bfa;
+  --warn: #fbbf24;
+  --danger: #f87171;
+  --pink: #f472b6;
+  --text: #e2e8f0;
+  --muted: #8899b4;
+  --border: #1c2a42;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Source Sans 3',sans-serif;line-height:1.65;overflow-x:hidden}
+.noise{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.container{max-width:1140px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
+h1{font-family:'Playfair Display',serif;font-weight:900}
+h2{font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(1.5rem,3vw,2.2rem);color:#fff;margin-bottom:12px}
+h3{font-size:1.05rem;color:#fff;margin-bottom:6px}
+.mono{font-family:'IBM Plex Mono',monospace}
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent2);margin-bottom:10px}
+.section-desc{color:var(--muted);margin-bottom:28px;font-size:1rem;max-width:720px}
+.hero{padding:90px 0 50px;text-align:center;position:relative}
+.hero::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,198,.05) 0%,rgba(56,189,248,.03) 40%,transparent 70%);pointer-events:none}
+.hero .pill{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);display:inline-block;padding:5px 16px;border:1px solid rgba(0,255,198,.2);border-radius:99px;margin-bottom:18px}
+h1{font-size:clamp(2.2rem,5vw,3.8rem);line-height:1.12;margin-bottom:18px;color:#fff}
+h1 em{font-style:normal;color:var(--accent)}
+.hero>p{max-width:620px;margin:0 auto;color:var(--muted);font-size:1.05rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:50px 0 70px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 20px;text-align:center;transition:transform .3s,border-color .3s}
+.stat:hover{transform:translateY(-3px);border-color:var(--accent)}
+.stat .n{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;line-height:1}
+.stat .l{font-size:.82rem;color:var(--muted);margin-top:6px}
+section{margin:0 0 80px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:80px 0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;position:relative;overflow:hidden}
+.card.glow-green{border-left:3px solid var(--accent)}.card.glow-blue{border-left:3px solid var(--accent2)}.card.glow-purple{border-left:3px solid var(--accent3)}.card.glow-yellow{border-left:3px solid var(--warn)}.card.glow-red{border-left:3px solid var(--danger)}.card.glow-pink{border-left:3px solid var(--pink)}
+.card p,.card li{font-size:.86rem;color:var(--muted);line-height:1.55}
+.card ul{list-style:none;margin-top:8px}
+.card li{padding:3px 0 3px 16px;position:relative}
+.card li::before{content:'›';position:absolute;left:0;color:var(--accent);font-weight:700}
+.card .tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;margin-bottom:8px}
+.tag.g{background:rgba(0,255,198,.12);color:var(--accent)}.tag.b{background:rgba(56,189,248,.12);color:var(--accent2)}.tag.y{background:rgba(251,191,36,.12);color:var(--warn)}.tag.r{background:rgba(248,113,113,.12);color:var(--danger)}.tag.p{background:rgba(167,139,250,.12);color:var(--accent3)}.tag.pk{background:rgba(244,114,182,.12);color:var(--pink)}
+.highlight-box{margin-top:12px;padding:10px 14px;border-radius:8px;background:rgba(0,255,198,.04);border-left:3px solid var(--accent);font-size:.82rem;color:var(--text)}
+.warn-box{margin-top:12px;padding:10px 14px;border-radius:8px;background:rgba(248,113,113,.04);border-left:3px solid var(--danger);font-size:.82rem;color:var(--text)}
+.algo-table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:16px}
+.algo-table th{font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
+.algo-table td{padding:10px 12px;border-bottom:1px solid rgba(28,42,66,.5);color:var(--text);vertical-align:top}
+.algo-table tr:hover td{background:rgba(0,255,198,.02)}
+.timeline{position:relative;padding-left:34px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent),var(--accent2),var(--warn),var(--danger))}
+.tl-item{position:relative;margin-bottom:28px}
+.tl-item::before{content:'';position:absolute;left:-30px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
+.tl-item.w::before{background:var(--warn)}.tl-item.d::before{background:var(--danger)}
+.tl-year{font-family:'IBM Plex Mono',monospace;font-size:.78rem;color:var(--accent)}
+.tl-item.w .tl-year{color:var(--warn)}.tl-item.d .tl-year{color:var(--danger)}
+.tl-item h4{font-size:.95rem;color:#fff;margin-bottom:2px}
+.tl-item p{font-size:.82rem;color:var(--muted)}
+.vs-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch}
+.vs-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px}
+.vs-divider{display:flex;align-items:center;justify-content:center;padding:0 16px;font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--muted)}
+@media(max-width:700px){.vs-grid{grid-template-columns:1fr}.vs-divider{padding:12px 0}}
+.bar-wrap{margin-bottom:16px}
+.bar-label{font-size:.82rem;color:var(--text);margin-bottom:4px;display:flex;justify-content:space-between}
+.bar-track{height:8px;border-radius:99px;background:var(--surface2);overflow:hidden}
+.bar-fill{height:100%;border-radius:99px}
+.bar-fill.red{background:linear-gradient(90deg,#ef4444,#f97316)}.bar-fill.yellow{background:linear-gradient(90deg,#f59e0b,#fbbf24)}.bar-fill.green{background:linear-gradient(90deg,#00ffc6,#34d399)}
+.data-table{width:100%;border-collapse:collapse;font-size:.84rem;margin-top:12px}
+.data-table th{font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 14px;border-bottom:1px solid var(--border)}
+.data-table td{padding:10px 14px;border-bottom:1px solid rgba(28,42,66,.4);color:var(--text)}
+.data-table .hl{color:var(--danger);font-weight:600;font-family:'IBM Plex Mono',monospace}
+footer{text-align:center;padding:40px 0;border-top:1px solid var(--border);font-size:.76rem;color:var(--muted)}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.tab-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tab-btn{font-family:'IBM Plex Mono',monospace;font-size:.78rem;padding:7px 16px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--muted);cursor:pointer;transition:all .2s}
+.tab-btn.active,.tab-btn:hover{background:var(--surface2);color:var(--accent);border-color:var(--accent)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<div class="container">
+
+<header class="hero">
+  <div style="font-family:'Playfair Display',serif;font-size:1.1rem;letter-spacing:6px;text-transform:uppercase;color:#fff;margin-bottom:4px">Black Bullet</div>
+  <a href="https://www.blackbullet.sg" target="_blank" style="font-family:'IBM Plex Mono',monospace;font-size:.75rem;color:var(--accent);text-decoration:none;letter-spacing:1px;margin-bottom:20px;display:inline-block">www.blackbullet.sg</a>
+  <div class="pill">Comprehensive Research Summary · April 2026</div>
+  <h1>The Global Race to<br><em>Quantum-Safe</em> Infrastructure</h1>
+  <p>Quantum computers will break today's encryption. Standards are finalized, deadlines are set, but migration has barely begun. This is the full picture.</p>
+</header>
+
+<div class="stats">
+  <div class="stat reveal"><div class="n" style="color:var(--accent)">3+2</div><div class="l">NIST algorithms finalized<br>+ 2 in pipeline</div></div>
+  <div class="stat reveal"><div class="n" style="color:var(--danger)">&lt;5%</div><div class="l">of enterprises have<br>formal transition plans</div></div>
+  <div class="stat reveal"><div class="n" style="color:var(--warn)">$7.1B</div><div class="l">US federal migration<br>cost estimate</div></div>
+  <div class="stat reveal"><div class="n" style="color:var(--accent2)">50%</div><div class="l">of Cloudflare traffic<br>uses PQ key exchange</div></div>
+  <div class="stat reveal"><div class="n" style="color:var(--danger)">5–10yr</div><div class="l">vulnerability window<br>for large organizations</div></div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ALGORITHMS -->
+<section>
+  <div class="section-label reveal">01 · Algorithms</div>
+  <h2 class="reveal">The complete PQC algorithm landscape</h2>
+  <p class="section-desc reveal">NIST finalized 3 standards in August 2024, with 2 more in the pipeline. Multiple regions also endorse additional algorithms.</p>
+  <div class="reveal" style="overflow-x:auto">
+    <table class="algo-table">
+      <thead><tr><th>Standard</th><th>Algorithm</th><th>Type</th><th>Math Basis</th><th>Status</th><th>Public Key</th><th>Sig / Ciphertext</th><th>Use Case</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">FIPS 203</td><td><strong>ML-KEM</strong><br><small style="color:var(--muted)">CRYSTALS-Kyber</small></td><td>KEM</td><td>Lattice (MLWE)</td><td><span class="tag g">Finalized</span></td><td class="mono">800–1,568 B</td><td class="mono">768–1,568 B</td><td>Primary key exchange. Faster than ECDH.</td></tr>
+        <tr><td class="mono">FIPS 204</td><td><strong>ML-DSA</strong><br><small style="color:var(--muted)">CRYSTALS-Dilithium</small></td><td>Signature</td><td>Lattice (MLWE)</td><td><span class="tag g">Finalized</span></td><td class="mono">1,312–2,592 B</td><td class="mono">2,420–4,595 B</td><td>General signatures. 52× larger than ECDSA.</td></tr>
+        <tr><td class="mono">FIPS 205</td><td><strong>SLH-DSA</strong><br><small style="color:var(--muted)">SPHINCS+</small></td><td>Signature</td><td>Hash-based</td><td><span class="tag g">Finalized</span></td><td class="mono">32–64 B</td><td class="mono">7,856–49,856 B</td><td>Conservative. Code signing, archival.</td></tr>
+        <tr><td class="mono">FIPS 206</td><td><strong>FN-DSA</strong><br><small style="color:var(--muted)">FALCON</small></td><td>Signature</td><td>Lattice (NTRU)</td><td><span class="tag y">Draft ~2027</span></td><td class="mono">897–1,793 B</td><td class="mono">666–1,280 B</td><td>Compact sigs. DNSSEC, cert chains.</td></tr>
+        <tr><td class="mono">TBD</td><td><strong>HQC</strong></td><td>KEM</td><td>Error-correcting codes</td><td><span class="tag y">Selected ~2027</span></td><td class="mono">~2,249 B</td><td class="mono">~4,497 B</td><td>Backup KEM. Diversity hedge.</td></tr>
+        <tr style="background:rgba(167,139,250,.03)"><td class="mono">EU</td><td><strong>FrodoKEM</strong></td><td>KEM</td><td>Lattice (LWE)</td><td><span class="tag p">BSI/ECCG</span></td><td class="mono">9,616–21,520 B</td><td class="mono">9,720–21,632 B</td><td>Conservative lattice. EU endorsed.</td></tr>
+        <tr style="background:rgba(167,139,250,.03)"><td class="mono">EU</td><td><strong>Classic McEliece</strong></td><td>KEM</td><td>Code-based</td><td><span class="tag p">BSI/ECCG</span></td><td class="mono">261 KB–1 MB</td><td class="mono">128–240 B</td><td>Extremely large keys. Mature math.</td></tr>
+        <tr style="background:rgba(244,114,182,.03)"><td class="mono">Korea</td><td><strong>SMAUG-T / NTRU+</strong></td><td>KEM</td><td>Lattice</td><td><span class="tag pk">KpqC</span></td><td colspan="2" class="mono" style="color:var(--muted)">National specs TBD</td><td>Korean national KEMs.</td></tr>
+        <tr style="background:rgba(244,114,182,.03)"><td class="mono">Korea</td><td><strong>HAETAE / AIMer</strong></td><td>Signature</td><td>Lattice / Symmetric</td><td><span class="tag pk">KpqC</span></td><td colspan="2" class="mono" style="color:var(--muted)">Samsung SDS co-developed AIMer</td><td>Korean national signatures.</td></tr>
+        <tr><td class="mono">NSA</td><td><strong>LMS / XMSS</strong></td><td>Signature</td><td>Stateful hash</td><td><span class="tag g">SP 800-208</span></td><td class="mono">~60 B</td><td class="mono">~2,700–4,800 B</td><td>Firmware signing (CNSA 2.0).</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid2" style="margin-top:20px">
+    <div class="card glow-green reveal">
+      <h3>CNSA 2.0 Approved (US NSS)</h3>
+      <ul><li><strong>AES-256</strong> — symmetric</li><li><strong>ML-KEM-1024</strong> — Level 5 only</li><li><strong>ML-DSA-87</strong> — Level 5 only</li><li><strong>LMS / XMSS</strong> — firmware signing</li><li><strong>SHA-384 / SHA-512</strong></li></ul>
+      <div class="warn-box">SLH-DSA excluded. Hybrid rejected for NSS. Pure PQC mandated.</div>
+    </div>
+    <div class="card glow-purple reveal">
+      <h3>ECCG Recommended (EU)</h3>
+      <ul><li><strong>ML-KEM</strong> — hybrid mandatory</li><li><strong>ML-DSA</strong> — hybrid mandatory</li><li><strong>SLH-DSA</strong> — standalone OK</li><li><strong>FrodoKEM</strong> — conservative alternative</li><li><strong>Classic McEliece</strong> — code-based alternative</li></ul>
+      <div class="highlight-box">Lattice-based PQC cannot be standalone in the EU — hybrid with classical crypto is mandatory.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROTOCOL DEPLOYMENT -->
+<section>
+  <div class="section-label reveal">02 · Protocol Deployment</div>
+  <h2 class="reveal">Where PQC is live in real protocols</h2>
+  <div class="grid3 reveal">
+    <div class="card glow-green"><span class="tag g">Production</span><h3>TLS 1.3 Hybrid</h3><p>X25519+ML-KEM-768 default in Chrome, Firefox, Edge, Brave, Opera. 50% of Cloudflare traffic. ~2 KB overhead, no latency regression.</p></div>
+    <div class="card glow-blue"><span class="tag b">Standards Track</span><h3>IPsec / IKEv2</h3><p>RFC 9370 multi-KEM. ML-KEM drafts for hybrid and standalone. RFC 8784 PSK interim protection.</p></div>
+    <div class="card glow-blue"><span class="tag b">Standards Track</span><h3>X.509 Certificates</h3><p>LAMPS WG: ML-DSA cert IDs, composite certs. 15 KB+ chain sizes remain the bottleneck.</p></div>
+    <div class="card glow-green"><span class="tag g">Deployed</span><h3>iMessage & Signal</h3><p>Apple PQ3 and Signal PQXDH integrate ML-KEM for quantum-safe E2EE on billions of devices.</p></div>
+    <div class="card glow-green"><span class="tag g">Deployed</span><h3>AWS KMS & OpenSSL 3.5</h3><p>Built-in ML-KEM, ML-DSA, SLH-DSA support. AWS Private CA ML-DSA certs in GovCloud.</p></div>
+    <div class="card glow-blue"><span class="tag b">Framework</span><h3>HPKE (RFC 9180)</h3><p>KEM-agnostic hybrid encryption. Active draft defines PQ algorithms for modular swap-in.</p></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WORLDWIDE REGULATION -->
+<section>
+  <div class="section-label reveal">03 · Worldwide Regulation</div>
+  <h2 class="reveal">Every regulation and mandate, by country</h2>
+  <p class="section-desc reveal">No binding private-sector PQC mandate exists anywhere as of early 2026. All current mandates target government and critical infrastructure.</p>
+
+  <!-- US -->
+  <div class="card glow-green reveal" style="margin-bottom:16px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><span style="font-size:2rem">🇺🇸</span><h3 style="margin:0">United States</h3><span class="tag g">Most detailed framework</span></div>
+    <div style="overflow-x:auto"><table class="data-table" style="margin-top:0">
+      <thead><tr><th>Instrument</th><th>Date</th><th>Key Requirements</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><strong>NSM-10</strong></td><td>May 2022</td><td>2035 federal deadline. Crypto inventories. NSA guidance for NSS.</td><td>Active under Trump</td></tr>
+        <tr><td><strong>OMB M-23-02</strong></td><td>Nov 2022</td><td>FCEB crypto inventories. 9 data items/system. Migration leads.</td><td>Binding</td></tr>
+        <tr><td><strong>H.R.7535</strong></td><td>Dec 2022</td><td>Statutory: OMB guidance within 1yr of NIST. Annual Congress reports.</td><td>Law</td></tr>
+        <tr><td><strong>CNSA 2.0</strong></td><td>Sep 2022</td><td>ML-KEM-1024 + ML-DSA-87 for NSS. Phased 2027–2035.</td><td>Active</td></tr>
+        <tr><td><strong>EO 14144</strong> → <strong>EO 14306</strong></td><td>Jan/Jun 2025</td><td>Biden accelerated PQC; Trump removed mandatory procurement. CISA list + TLS 1.3 by 2030 retained.</td><td>Active (softened)</td></tr>
+        <tr><td><strong>CISA Product Categories</strong></td><td>Jan 2026</td><td>De facto PQC procurement guide.</td><td>Published</td></tr>
+        <tr><td><strong>NIST IR 8547</strong></td><td>Nov 2024 draft</td><td>RSA-2048/P-256 deprecated after 2030. All classical PK disallowed after 2035.</td><td>Draft</td></tr>
+        <tr><td><strong>DoD CIO Memo</strong></td><td>Nov 2025</td><td>Full crypto inventory. QKD prohibited without exception.</td><td>Active</td></tr>
+      </tbody>
+    </table></div>
+    <div class="highlight-box">Other US frameworks: HIPAA (no PQC req), SOX (material disclosure emerging), FedRAMP/FISMA/CMMC (reference FIPS but no PQC mandate), PCI DSS 4.0 (crypto inventory Req. 12.3.3 only), GLBA/FFIEC (risk-based, will evolve).</div>
+  </div>
+
+  <!-- EU -->
+  <div class="card glow-purple reveal" style="margin-bottom:16px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><span style="font-size:2rem">🇪🇺</span><h3 style="margin:0">European Union</h3><span class="tag p">Hybrid mandatory</span></div>
+    <div style="overflow-x:auto"><table class="data-table" style="margin-top:0">
+      <thead><tr><th>Instrument</th><th>Date</th><th>Key Requirements</th></tr></thead>
+      <tbody>
+        <tr><td><strong>EC Recommendation 2024/1101</strong></td><td>Apr 2024</td><td>Member States develop PQC strategies with milestones.</td></tr>
+        <tr><td><strong>NIS CG Roadmap v1.1</strong></td><td>Jun 2025</td><td>Begin by end 2026. Critical infra by 2030. Full by 2035.</td></tr>
+        <tr><td><strong>COM(2026) 13</strong></td><td>2026</td><td>Proposed NIS2 amendment — PQC planning mandatory in national strategies.</td></tr>
+        <tr><td><strong>ECCG v2.0</strong></td><td>Apr 2025</td><td>First EU PQC algorithm list. Hybrid mandatory for lattice-based.</td></tr>
+        <tr><td><strong>NIS2 Directive</strong></td><td>Oct 2024</td><td>"State-of-the-art" crypto (Art. 21). PQC not named explicitly.</td></tr>
+        <tr><td><strong>eIDAS 2.0</strong></td><td>May 2024</td><td>EU Digital Identity Wallets by 2026 — currently use vulnerable RSA/ECC.</td></tr>
+        <tr><td><strong>DORA</strong></td><td>Jan 2025</td><td>Financial ICT risk management. Crypto risk implied, PQC not named.</td></tr>
+        <tr><td><strong>EuroQCI</strong></td><td>2019–ongoing</td><td>Pan-EU QKD infra. Eagle-1 satellite late 2026.</td></tr>
+        <tr><td><strong>21-nation statement</strong></td><td>Nov 2024</td><td>"Securing Tomorrow, Today" — hybrid + inventories + immediate action.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <!-- National EU -->
+  <div class="grid2 reveal" style="margin-bottom:16px">
+    <div class="card glow-blue"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="font-size:1.4rem">🇩🇪</span><h3 style="margin:0">BSI (Germany)</h3></div><ul><li>TR-02102-1: NIST + FrodoKEM + Classic McEliece</li><li>Hybrid mandatory for all PQC</li><li>Critical infra: <strong>2030</strong>, general: 2032</li><li>CRQCs feasible by 2040, potentially ~2035</li></ul></div>
+    <div class="card glow-blue"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="font-size:1.4rem">🇫🇷</span><h3 style="margin:0">ANSSI (France)</h3></div><ul><li>3-phase: hybrid now → assured (≥2025) → standalone (≥2030)</li><li>Hybrid mandatory Phases 1 & 2</li><li>Hash-based sigs exempted from hybridization</li></ul></div>
+    <div class="card glow-blue"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="font-size:1.4rem">🇳🇱</span><h3 style="margin:0">AIVD (Netherlands)</h3></div><ul><li>PQC Migration Handbook 2nd ed. (Dec 2024)</li><li>Court of Audit: most gov orgs lack PQC measures</li></ul></div>
+    <div class="card glow-blue"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="font-size:1.4rem">🇬🇧</span><h3 style="margin:0">UK NCSC</h3></div><ul><li>Discovery (→2028), upgrades (2028–31), full (2031–35)</li><li><strong>Prefers pure PQ signatures</strong> — diverges from EU</li><li>Recommends Level 3, not Level 5</li></ul></div>
+  </div>
+
+  <!-- APAC -->
+  <div class="grid2 reveal" style="margin-bottom:16px">
+    <div class="card glow-pink"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="font-size:1.4rem">🇸🇬</span><h3 style="margin:0">Singapore</h3></div><ul><li>NQSN+ nationwide quantum-safe network (IMDA)</li><li>Singtel: SE Asia's first hybrid QKD-PQC (Aug 2024)</li><li>MAS: S$100M financial quantum. S$400M total by 2030</li><li>CSA: Quantum-Safe Handbook + Readiness Index</li></ul></div>
+    <div class="card glow-pink"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="font-size:1.4rem">🇦🇺</span><h3 style="margin:0">Australia (ASD)</h3></div><ul><li><strong>Most aggressive timeline globally</strong></li><li>Plan by 2026, implement by 2028, <strong>full by 2030</strong></li><li>5 years ahead of NIST. Does NOT endorse QKD</li><li>LATICE framework for structured migration</li></ul></div>
+    <div class="card glow-pink"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="font-size:1.4rem">🇯🇵</span><h3 style="margin:0">Japan</h3></div><ul><li>NCO: <strong>2035 gov PQC deadline</strong></li><li>CRYPTREC PQC Guidelines (Mar 2025)</li><li>NTT: quantum-safe transport Japan↔Taiwan</li></ul></div>
+    <div class="card glow-pink"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="font-size:1.4rem">🇰🇷</span><h3 style="margin:0">South Korea</h3></div><ul><li>KpqC: 4 national algorithms (Jan 2025)</li><li>SK Telecom: PQC SIMs, QRNG phones, Q-HSM chips</li><li>Full rollout: <strong>2035</strong></li></ul></div>
+    <div class="card glow-pink"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="font-size:1.4rem">🇮🇳</span><h3 style="margin:0">India</h3></div><ul><li>National Quantum Mission: ~$700M through 2031</li><li>Critical infra PQC by <strong>2027</strong></li><li>National PQC Testing Program by Dec 2026</li></ul></div>
+    <div class="card glow-pink"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span style="font-size:1.4rem">🇲🇾</span><h3 style="margin:0">Malaysia</h3></div><ul><li>PQC Migration Framework (2024)</li><li>National PQC Readiness Roadmap (Oct 2025)</li></ul></div>
+  </div>
+
+  <div class="card glow-red reveal" style="margin-bottom:16px"><h3>⚠️ No formal PQC mandates identified</h3><p>Thailand, Indonesia, Vietnam, Philippines — early stages only. China develops national algorithms but details are limited. NATO: quantum-safe crypto is a strategic goal with demonstrated PQC comms across 5 countries + NATO HQ.</p></div>
+
+  <!-- Conflicts table -->
+  <div class="card reveal" style="border:1px solid var(--warn);margin-bottom:16px">
+    <h3 style="color:var(--warn)">⚡ Cross-Jurisdictional Conflicts</h3>
+    <div style="overflow-x:auto"><table class="data-table" style="margin-top:8px">
+      <thead><tr><th>Issue</th><th>US (CNSA 2.0)</th><th>EU (ECCG/BSI/ANSSI)</th><th>UK (NCSC)</th></tr></thead>
+      <tbody>
+        <tr><td>Hybrid vs. Pure</td><td>Pure PQC for NSS</td><td><strong>Hybrid mandatory</strong></td><td>Pure PQ sigs preferred</td></tr>
+        <tr><td>Security Level</td><td>Level 5</td><td>Level 5</td><td>Level 3</td></tr>
+        <tr><td>Extra algorithms</td><td>NIST only</td><td>+ FrodoKEM, McEliece</td><td>NIST-aligned</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:10px;font-size:.84rem">Global orgs across 40+ jurisdictions must navigate the strictest common denominator. The EU hybrid mandate becomes the de facto global standard for any company serving European markets.</p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- QKD VS PQC -->
+<section>
+  <div class="section-label reveal">04 · QKD vs. PQC</div>
+  <h2 class="reveal">The quantum key distribution debate</h2>
+  <p class="section-desc reveal">Industry consensus: PQC is the primary path. QKD is complementary for specific high-security niches.</p>
+
+  <div class="vs-grid reveal">
+    <div class="vs-card" style="border-top:3px solid var(--accent)">
+      <h3 style="color:var(--accent)">PQC</h3><span class="tag g">Primary path</span>
+      <ul style="list-style:none;margin-top:10px">
+        <li style="padding:4px 0 4px 18px;position:relative;font-size:.85rem;color:var(--muted)"><span style="position:absolute;left:0;color:var(--accent)">✓</span> Software-based — no special hardware</li>
+        <li style="padding:4px 0 4px 18px;position:relative;font-size:.85rem;color:var(--muted)"><span style="position:absolute;left:0;color:var(--accent)">✓</span> Any distance, existing networks</li>
+        <li style="padding:4px 0 4px 18px;position:relative;font-size:.85rem;color:var(--muted)"><span style="position:absolute;left:0;color:var(--accent)">✓</span> NIST standardized</li>
+        <li style="padding:4px 0 4px 18px;position:relative;font-size:.85rem;color:var(--muted)"><span style="position:absolute;left:0;color:var(--accent)">✓</span> Deployed at 50%+ of TLS traffic</li>
+        <li style="padding:4px 0 4px 18px;position:relative;font-size:.85rem;color:var(--muted)"><span style="position:absolute;left:0;color:var(--accent)">✓</span> Provides authentication</li>
+      </ul>
+    </div>
+    <div class="vs-divider">vs</div>
+    <div class="vs-card" style="border-top:3px solid var(--accent3)">
+      <h3 style="color:var(--accent3)">QKD</h3><span class="tag p">Complementary</span>
+      <ul style="list-style:none;margin-top:10px">
+        <li style="padding:4px 0 4px 18px;position:relative;font-size:.85rem;color:var(--muted)"><span style="position:absolute;left:0;color:var(--accent3)">△</span> Needs dedicated fiber/satellite hardware</li>
+        <li style="padding:4px 0 4px 18px;position:relative;font-size:.85rem;color:var(--muted)"><span style="position:absolute;left:0;color:var(--accent3)">△</span> Distance limited, trusted nodes needed</li>
+        <li style="padding:4px 0 4px 18px;position:relative;font-size:.85rem;color:var(--muted)"><span style="position:absolute;left:0;color:var(--accent3)">△</span> Physics-based (information-theoretic)</li>
+        <li style="padding:4px 0 4px 18px;position:relative;font-size:.85rem;color:var(--muted)"><span style="position:absolute;left:0;color:var(--accent3)">△</span> Cannot authenticate on its own</li>
+        <li style="padding:4px 0 4px 18px;position:relative;font-size:.85rem;color:var(--muted)"><span style="position:absolute;left:0;color:var(--accent3)">△</span> Expensive, point-to-point only</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid2 reveal" style="margin-top:16px">
+    <div class="card glow-red">
+      <h3>Who opposes QKD?</h3>
+      <ul><li><strong>NSA</strong> — "does not support usage of QKD" for NSS</li><li><strong>ANSSI + BSI + AIVD + Sweden</strong> — joint paper on QKD limitations (Jan 2024)</li><li><strong>GSMA</strong> — scopes QKD out of PQC guidelines</li><li><strong>ASD (Australia)</strong> — does not endorse QKD</li><li><strong>US DoD</strong> — QKD prohibited without exception approval</li></ul>
+    </div>
+    <div class="card glow-purple">
+      <h3>Who deploys QKD?</h3>
+      <ul><li><strong>China</strong> — strongest proponent. China Telecom: first distributed QKD+PQC (May 2025)</li><li><strong>EuroQCI</strong> — pan-EU infra. Eagle-1 satellite late 2026</li><li><strong>Singapore</strong> — NQSN+ hybrid QKD-PQC network</li><li><strong>SK Telecom</strong> — 330 km backbone + PQC hybrid</li><li><strong>BT/Toshiba</strong> — UK's first commercial QKD metro network</li><li><strong>Deutsche Telekom</strong> — ~2,000 km fiber test network</li></ul>
+    </div>
+  </div>
+
+  <div class="card reveal" style="margin-top:16px;border:1px solid var(--accent2)">
+    <h3>Satellite PQC</h3>
+    <ul><li><strong>QuSecure</strong> — first E2E PQC satellite link via SpaceX Starlink (Mar 2023)</li><li><strong>WISeKey/SEALSQ</strong> — WISeSat 4.0 LEO sats with PQC chips (Mar 2026), 100-sat constellation</li><li><strong>ESA Eagle-1</strong> — QKD satellite for EuroQCI (late 2026)</li><li>Challenges: 10–20 yr lifetimes, limited OTA updates, constrained processing</li></ul>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SECTOR DEEP DIVES -->
+<section>
+  <div class="section-label reveal">05 · Sector Deep Dives</div>
+  <h2 class="reveal">Industry-specific challenges and progress</h2>
+
+  <div class="tab-bar reveal" id="sectorTabs">
+    <button class="tab-btn active" data-tab="gov">🏛️ Government</button>
+    <button class="tab-btn" data-tab="fin">🏦 Financial Services</button>
+    <button class="tab-btn" data-tab="tel">📡 Telecommunications</button>
+  </div>
+
+  <!-- GOV -->
+  <div class="tab-panel active" id="tab-gov">
+    <div class="grid2 reveal">
+      <div class="card glow-green"><h3>Scale</h3><p>US federal gov must migrate NSS, civilian, weapons, IoT, OT, unmanned platforms, classified systems. DoD CIO memo (Nov 2025): inventory all crypto, designate PQC leads in 20 days.</p><div class="highlight-box">$7.1B estimated cost (2025–2035) with "high uncertainty."</div></div>
+      <div class="card glow-red"><h3>FIPS 140-3 bottleneck</h3><p><strong>500+ day</strong> average validation (42% increase). PQC-validated modules not broadly available before <strong>2027</strong>. All FIPS 140-2 certs Historical by Sep 2026.</p></div>
+    </div>
+    <div class="grid2 reveal" style="margin-top:16px">
+      <div class="card"><h3>Classified vs. Civilian</h3><ul><li><strong>NSS</strong>: CNSA 2.0, NIAP validation, pure PQC, Level 5 only</li><li><strong>FCEB</strong>: NIST standards, hybrid OK, OMB M-23-02</li></ul></div>
+      <div class="card"><h3>PKI migration</h3><ul><li>Larger keys may break legacy systems assuming &lt;1,024 B sigs</li><li>AWS Private CA: ML-DSA certs in GovCloud (Nov 2025)</li><li>HSMs: Thales Luna v7.9, Entrust nShield 5, Utimaco AT1000</li></ul></div>
+      <div class="card"><h3>Procurement</h3><ul><li>CISA Product List (Jan 2026) = de facto guide</li><li>GSA Buyer's Guide (Jun 2025)</li><li>New NSS: CNSA 2.0 by Jan 2027</li><li>No FAR clause. USDA first agency-level rule (Sep 2025)</li></ul></div>
+      <div class="card"><h3>NATO</h3><ul><li>PQC comms: Malta, Slovakia, Spain, US, NATO HQ</li><li>5G PQC exercise in Latvia (2023)</li><li>DIANA: 6 quantum companies selected</li></ul></div>
+    </div>
+    <div class="card glow-yellow reveal" style="margin-top:16px"><h3>Legacy constraints</h3><p>SCADA/ICS, weapons systems, field sensors with hardcoded crypto. Some systems may <strong>never migrate</strong> — lacking processing speed, memory, or bandwidth for PQC.</p></div>
+  </div>
+
+  <!-- FIN -->
+  <div class="tab-panel" id="tab-fin">
+    <div class="grid2 reveal">
+      <div class="card glow-blue"><h3>BIS Project Leap</h3><p><strong>Phase 1</strong> (2023): Hybrid encryption Paris↔Frankfurt.</p><p><strong>Phase 2</strong> (Dec 2025): PQC in TARGET2 RTGS with SWIFT, Bank of Italy, Nexi-Colt. All scenarios succeeded.</p><div class="warn-box">"Not a simple algorithm swap" — BIS</div></div>
+      <div class="card glow-yellow"><h3>Card payments — "telescoping"</h3><p>EMV still migrating RSA→ECC (~2030 completion). PQC arrives before it finishes. Cards: ~32-bit, 48 KB RAM, &lt;300ms.</p><ul><li>EMVCo: threat "not expected until 2040"</li><li>Mastercard: quantum-resistant Ecos (Oct 2022)</li><li>FS-ISAC: ATMs (RSA 2048, deprecated 3DES) critical</li></ul></div>
+    </div>
+    <div class="grid2 reveal" style="margin-top:16px">
+      <div class="card"><h3>Securities trading</h3><p>ML-DSA-44 signing <strong>3–24× slower than ECDSA</strong>. HFT and real-time settlement at risk. Entrust FPGA nShield 5 targets this.</p></div>
+      <div class="card"><h3>CBDCs</h3><p>BIS Project Tourbillon: "dramatically lower performance, unacceptably slow UX." PQC too demanding for offline smart cards. MAS + Banque de France: cross-border PQC experiment (Nov 2024).</p></div>
+      <div class="card"><h3>SWIFT & messaging</h3><p>Participated in Project Leap Phase 2. Quantum-safe roadmap referenced but unverified. ISO 20022 needs updating for larger PQC messages.</p></div>
+      <div class="card"><h3>Regulation</h3><ul><li><strong>PCI DSS 4.0</strong>: crypto inventory (Req. 12.3.3), no PQC mandate</li><li><strong>G7 CEG</strong>: financial PQC roadmap, 2030–2032 target</li><li><strong>Europol QSFF</strong>: "cannot migrate unilaterally"</li></ul></div>
+    </div>
+    <div class="card reveal" style="margin-top:16px;border:1px solid var(--accent2)">
+      <h3>Major bank pilots</h3>
+      <div class="grid3" style="margin-top:12px;gap:10px">
+        <div style="padding:10px;background:var(--surface2);border-radius:8px"><strong style="color:var(--accent2)">JPMorgan Chase</strong><p style="font-size:.8rem;color:var(--muted);margin-top:4px">100+ quantum patents. $100M Quantinuum investment. "Quantum Mesh" network. 2/3 of quantum postings among top 50 banks.</p></div>
+        <div style="padding:10px;background:var(--surface2);border-radius:8px"><strong style="color:var(--accent2)">HSBC</strong><p style="font-size:.8rem;color:var(--muted);margin-top:4px">Quantum-secure tokenized gold (Sep 2024). QKD for FX trading with BT/Toshiba.</p></div>
+        <div style="padding:10px;background:var(--surface2);border-radius:8px"><strong style="color:var(--accent2)">Others</strong><p style="font-size:.8rem;color:var(--muted);margin-top:4px">Danske Bank: first Nordic quantum-safe exchange (2022). Wells Fargo: Quantum Security team. Intesa Sanpaolo: Quantum Competence Center (2020).</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TELCO -->
+  <div class="tab-panel" id="tab-tel">
+    <div class="grid2 reveal">
+      <div class="card glow-green"><h3>5G attack surface</h3><p>Quantum-vulnerable crypto in 3GPP TS 33.501:</p><ul><li><strong>TLS</strong> — SBA communications</li><li><strong>IPsec</strong> — inter-network security</li><li><strong>SUCI/ECIES</strong> — subscriber identity</li><li><strong>OAuth 2.0</strong> — API auth</li></ul><div class="highlight-box">Samsung Research: <strong>6.7× speed-up</strong> with PQC key generation in 5G.</div></div>
+      <div class="card glow-blue"><h3>3GPP roadmap</h3><ul><li><strong>TR 33.938</strong> (R19): crypto inventory</li><li><strong>R20 study</strong> approved Jun 2025: hybrid + standalone PQC</li><li>PQC in <strong>Release 19 or 20</strong> (5G-Advanced)</li><li><strong>6G (R21)</strong>: quantum-resistant from day one</li></ul></div>
+    </div>
+    <div class="grid2 reveal" style="margin-top:16px">
+      <div class="card"><h3>GSMA PQTN Taskforce</h3><p>50+ companies, 20+ operators. PQ.01 (impact), PQ.02 (risk), PQ.03 v2.0 (146-page use-case guide). Liaisons with 3GPP, ITU, ETSI, IETF.</p></div>
+      <div class="card"><h3>SIM/eSIM constraints</h3><ul><li>~256KB–1MB memory. PQC keys 25× larger than ECC</li><li>SK Telecom + Thales: first PQC SIM on live 5G (Dec 2023)</li><li>IETF PQUIP: seed-based key generation guidance</li></ul></div>
+    </div>
+    <div class="grid2 reveal" style="margin-top:16px">
+      <div class="card"><h3>Vendor readiness</h3><ul><li><strong>Ericsson</strong>: R19/20 roadmap, $450M+ quantum R&D</li><li><strong>Nokia</strong>: PQC portfolio, HellasQCI PoC</li><li><strong>Cisco</strong>: SKIP protocol, PQ MACsec in production</li><li><strong>Huawei</strong>: "following standardization with interest"</li></ul></div>
+      <div class="card"><h3>Operator pilots (~35 global)</h3><ul><li><strong>SK Telecom</strong>: QKD-PQC hybrid, QSaaS, QRNG phones</li><li><strong>Deutsche Telekom</strong>: Berlin Lab, ~2,000 km fiber</li><li><strong>BT</strong>: UK first commercial QKD metro</li><li><strong>China Mobile</strong>: GTI PQC whitepaper (2025)</li></ul></div>
+    </div>
+    <div class="card glow-yellow reveal" style="margin-top:16px"><h3>The dependency chain</h3><p style="font-family:'IBM Plex Mono',monospace;font-size:.85rem;color:var(--accent2);margin-top:6px">NIST → IETF → 3GPP → Vendors → Operators</p><p style="margin-top:8px">Each stage is sequential. One major telco working on PQC for ~10 years is <strong>"still nowhere close to finishing."</strong></p></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- READINESS -->
+<section>
+  <div class="section-label reveal">06 · Readiness Gaps</div>
+  <h2 class="reveal">Where the world falls short</h2>
+  <div class="card reveal" style="padding:32px;margin-bottom:20px">
+    <div class="bar-wrap"><div class="bar-label"><span>HSM / crypto library readiness</span><span style="color:var(--danger);font-family:'IBM Plex Mono',monospace">19%</span></div><div class="bar-track"><div class="bar-fill red" style="width:19%"></div></div></div>
+    <div class="bar-wrap"><div class="bar-label"><span>Enterprise formal transition plans</span><span style="color:var(--danger);font-family:'IBM Plex Mono',monospace">&lt;5%</span></div><div class="bar-track"><div class="bar-fill red" style="width:5%"></div></div></div>
+    <div class="bar-wrap"><div class="bar-label"><span>Federal budget allocation</span><span style="color:var(--danger);font-family:'IBM Plex Mono',monospace">11%</span></div><div class="bar-track"><div class="bar-fill red" style="width:11%"></div></div></div>
+    <div class="bar-wrap"><div class="bar-label"><span>Organizations taking decisive action</span><span style="color:var(--warn);font-family:'IBM Plex Mono',monospace">30%</span></div><div class="bar-track"><div class="bar-fill yellow" style="width:30%"></div></div></div>
+    <div class="bar-wrap"><div class="bar-label"><span>Organizations measuring quantum risk</span><span style="color:var(--warn);font-family:'IBM Plex Mono',monospace">52%</span></div><div class="bar-track"><div class="bar-fill yellow" style="width:52%"></div></div></div>
+    <div class="bar-wrap"><div class="bar-label"><span>Organizations acknowledging unpreparedness</span><span style="color:var(--warn);font-family:'IBM Plex Mono',monospace">86%</span></div><div class="bar-track"><div class="bar-fill yellow" style="width:86%"></div></div></div>
+    <div class="bar-wrap"><div class="bar-label"><span>TLS traffic with PQ key exchange</span><span style="color:var(--accent);font-family:'IBM Plex Mono',monospace">50%</span></div><div class="bar-track"><div class="bar-fill green" style="width:50%"></div></div></div>
+  </div>
+  <div class="grid2 reveal">
+    <div class="card glow-red"><h3>Workforce gap</h3><ul><li>McKinsey: <strong>250,000+ quantum pros needed by 2030</strong></li><li>Pentagon: 20,000+ cyber pros short</li><li>UK NCSC: pilot to accredit PQC consultancies</li><li>JPMC: 2/3 of quantum postings among top 50 banks</li></ul></div>
+    <div class="card glow-yellow"><h3>Vendor deadlock</h3><p>Orgs wait for vendors. Vendors wait for demand. Assessment alone: $1–3M for a major telco.</p><ul><li>Banks depend on HSM vendors</li><li>Telcos wait for equipment firmware</li><li>GSMA: early requirement definition is essential</li></ul></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- VULNERABILITY WINDOW -->
+<section>
+  <div class="section-label reveal">07 · The Core Risk</div>
+  <h2 class="reveal">Migration vs. threat timelines</h2>
+  <div class="reveal" style="overflow-x:auto"><table class="data-table">
+    <thead><tr><th>Sector</th><th>Realistic Completion</th><th>CRQC Arrival</th><th>Gap</th></tr></thead>
+    <tbody>
+      <tr><td>🏛️ Government</td><td>2037–2040</td><td>2030 ±2 yrs</td><td class="hl">5–10 years</td></tr>
+      <tr><td>🏦 Financial</td><td>2035–2040</td><td>2030 ±2 yrs</td><td class="hl">3–10 years</td></tr>
+      <tr><td>📡 Telecom</td><td>2035–2040+</td><td>2030 ±2 yrs</td><td class="hl">5–10+ years</td></tr>
+    </tbody>
+  </table></div>
+  <div class="grid3 reveal" style="margin-top:20px">
+    <div class="card glow-red"><h3>CRQC estimates</h3><ul><li>GRI: 19–34% within 10 yrs</li><li>BSI: feasible by 2040, potentially ~2035</li><li>CSA: ~2030</li><li>RSA qubits dropping: 20M → potentially &lt;1M</li></ul></div>
+    <div class="card glow-yellow"><h3>Migration durations</h3><ul><li>Small: 5–7 years</li><li>Medium: 8–12 years</li><li>Large: <strong>12–15+ years</strong></li><li>SHA-1→SHA-2 took a decade</li></ul></div>
+    <div class="card glow-red"><h3>HNDL is happening now</h3><ul><li>NSA/CISA/NIST: adversaries "may already be harvesting"</li><li>"Some intel agencies maintain encrypted archives"</li><li>Diplomatic, medical, financial data at retroactive risk</li></ul></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- TIMELINE -->
+<section>
+  <div class="section-label reveal">08 · Timeline</div>
+  <h2 class="reveal">Key milestones: 2022 → 2040</h2>
+  <div class="timeline reveal">
+    <div class="tl-item"><div class="tl-year">2022</div><h4>Foundations</h4><p>NSM-10. CNSA 2.0. H.R.7535. GSMA PQTN. KpqC launched.</p></div>
+    <div class="tl-item"><div class="tl-year">2024</div><h4>Standards arrive</h4><p>FIPS 203/204/205 finalized. EU Rec 2024/1101. eIDAS 2.0. NIS2 transposition. Singtel hybrid QKD-PQC.</p></div>
+    <div class="tl-item"><div class="tl-year">2025</div><h4>Momentum</h4><p>HQC selected. ECCG v2.0. India Task Force. DoD memo. OpenSSL 3.5. 50% Cloudflare PQ traffic.</p></div>
+    <div class="tl-item"><div class="tl-year">2026</div><h4>EU begins</h4><p>All EU states begin transition. CISA product list. India testing program. FIPS 140-2 Historical. Eagle-1 satellite.</p></div>
+    <div class="tl-item"><div class="tl-year">2027</div><h4>NSS procurement</h4><p>New NSS must be CNSA 2.0. FN-DSA + HQC expected. First broad FIPS 140-3 PQC modules. India critical infra.</p></div>
+    <div class="tl-item w"><div class="tl-year">2028–2030</div><h4>Critical deadlines</h4><p>NIST deprecates RSA-2048/P-256. BSI critical infra. Australia full transition. CNSA 2.0 VPNs/routers. UK high-priority upgrades.</p></div>
+    <div class="tl-item w"><div class="tl-year">~2030–33</div><h4>Possible CRQC</h4><p>19–34% probability. Harvested data readable. EMV RSA→ECC done. CNSA 2.0 web/cloud/OS (2033). G7 financial target.</p></div>
+    <div class="tl-item d"><div class="tl-year">2035</div><h4>All classical crypto disallowed</h4><p>NIST, US, EU, Japan, Korea converge. UK full migration. Large orgs: 2037–2040 realistically.</p></div>
+    <div class="tl-item d"><div class="tl-year">2037–40+</div><h4>Realistic completion</h4><p>Large agencies, banks, telcos finish. 6G (3GPP R21) arrives quantum-safe from inception.</p></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONCLUSIONS -->
+<section style="padding-bottom:40px">
+  <div class="section-label reveal">09 · Conclusions</div>
+  <h2 class="reveal">Three findings the literature under-emphasizes</h2>
+  <div class="grid3 reveal">
+    <div class="card" style="border-top:3px solid var(--accent)"><div style="font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--accent);letter-spacing:2px;margin-bottom:8px">FINDING 01</div><h3>Solved problem masks unsolved one</h3><p>Key exchange works (ML-KEM, 50% traffic). Authentication blocked: 15 KB cert chains, 60%+ slowdowns, no production fix. Half quantum-safe.</p></div>
+    <div class="card" style="border-top:3px solid var(--accent3)"><div style="font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--accent3);letter-spacing:2px;margin-bottom:8px">FINDING 02</div><h3>EU hybrid mandate = global standard</h3><p>EU requires hybrid for lattice PQC. Global banks/telcos serve Europe → hybrid is the binding constraint. Conflicts with US pure-PQC mandate.</p></div>
+    <div class="card" style="border-top:3px solid var(--danger)"><div style="font-family:'IBM Plex Mono',monospace;font-size:.7rem;color:var(--danger);letter-spacing:2px;margin-bottom:8px">FINDING 03</div><h3>The gap is temporal, not technical</h3><p>Migration: 12–15+ years. Threat: 5–10 years. The 5–10 year vulnerability window is mathematical. HNDL means the clock started years ago.</p></div>
+  </div>
+</section>
+
+<footer>
+  <div style="font-family:'Playfair Display',serif;font-size:.9rem;letter-spacing:5px;text-transform:uppercase;color:#fff;margin-bottom:4px">Black Bullet</div>
+  <a href="https://www.blackbullet.sg" target="_blank" style="font-family:'IBM Plex Mono',monospace;font-size:.72rem;color:var(--accent);text-decoration:none;letter-spacing:1px;margin-bottom:10px;display:inline-block">www.blackbullet.sg</a>
+  <br>Based on comprehensive literature review · April 2026<br>
+  Post-Quantum Cryptography: Strategy, Standards, and the Global Race to Quantum-Safe Infrastructure
+</footer>
+</div>
+
+<script>
+const obs=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('visible')})},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
